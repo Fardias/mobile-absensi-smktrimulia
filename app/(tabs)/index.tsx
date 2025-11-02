@@ -1,98 +1,170 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import TimeCard from "../../components/TimeCard";
+import ActionButton from "@/components/ActionButton";
+import RiwayatCard, { RiwayatList } from '@/components/RiwayatCard';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function Index() {
+  const riwayatData = [
+    {
+      hari: 'Senin',
+      tanggal: '01',
+      bulan: 'Okt',
+      tahun: 2025,
+      jamDatang: '07:30',
+      jamPulang: '16:00',
+      status: 'Hadir',
+    },
+    // ... data lainnya
+  ];
+  const today = new Date();
 
-export default function HomeScreen() {
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const dayName = days[today.getDay()];
+
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  const monthName = months[today.getMonth()];
+
+  const date = today.getDate();
+  const year = today.getFullYear();
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Header Section with Gradient */}
+          <LinearGradient
+            colors={['#4A90E2', '#357ABD']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerGradient}
+          >
+            <View style={styles.greetings}>
+              <Text style={styles.greetingText}>Hai, Fardias Alfathan 👋</Text>
+              <Text style={styles.dateText}>{`${dayName}, ${date} ${monthName} ${year}`}</Text>
+            </View>
+          </LinearGradient>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+          {/* Time Cards Section */}
+          <View style={styles.timeCardSection}>
+            {/* <Text style={styles.sectionTitle}>Jam Masuk dan Keluar Hari Ini</Text> */}
+            <View style={styles.timeCardContainer}>
+              <TimeCard judul="Jam Datang" jam="06:30" />
+              <TimeCard judul="Jam Pulang" jam="15:00" />
+            </View>
+          </View>
+
+          {/* Action Buttons Section */}
+          <View style={styles.actionSection}>
+            <Text style={styles.sectionTitle}>Menu Absensi</Text>
+            <View style={styles.actionButtonContainer}>
+              <ActionButton
+                iconName="time"
+                iconText="Absen Datang"
+                type="absenDatang"
+              />
+              <ActionButton
+                iconName="time"
+                iconText="Absen Pulang"
+                type="absenPulang"
+              />
+              <ActionButton
+                iconName="time"
+                iconText="Izin/Sakit"
+                type="izinSakit"
+              />
+            </View>
+            <View style={styles.actionButtonSingle}>
+
+            </View>
+          </View>
+
+          {/* <RiwayatList
+            data={riwayatData}
+            onSeeAll={() => console.log('Lihat semua')}
+            onCardPress={(item) => console.log('Card pressed', item)}
+          /> */}
+          <View style={{paddingHorizontal: 20, marginTop: 20}}>
+            <Text style={styles.sectionTitle}>Status Absensi Hari Ini</Text>
+            <RiwayatCard hari="Senin" tanggal="01" bulan="Okt" tahun={2025} jamDatang="07:30" jamPulang="16:00" status="Hadir" />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F7FA',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 30,
+  },
+  headerGradient: {
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    paddingBottom: 40,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: '#4A90E2',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  greetings: {
+    flexDirection: 'column',
+    gap: 8,
+  },
+  greetingText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#E8F4F8',
+    fontWeight: '500',
+  },
+  timeCardSection: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#001933',
+    marginBottom: 16,
+    letterSpacing: 0.3,
+  },
+  timeCardContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  actionSection: {
+    paddingHorizontal: 20,
+    marginTop: 32,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  actionButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    marginBottom: 12,
+  },
+  actionButtonSingle: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
 });
