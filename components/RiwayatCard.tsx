@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 type RiwayatCardProps = {
   hari: string;
@@ -23,29 +23,47 @@ const RiwayatCard = ({
   status,
   onPress,
 }: RiwayatCardProps) => {
-  type IoniconName = "checkmark-circle" | "information-circle" | "medkit" | "close-circle";
+  type IoniconName =
+    | "checkmark-circle"
+    | "information-circle"
+    | "medkit"
+    | "close-circle";
 
-  const getStatusConfig = (): { icon: IoniconName; color: string; bgColor: string } => {
+  const getStatusConfig = (): {
+    icon: IoniconName;
+    color: string;
+    bgColor: string;
+  } => {
     switch (status) {
-      case 'Hadir':
-        return { icon: 'checkmark-circle', color: '#4CAF50', bgColor: '#E8F5E9' };
-      case 'Izin':
-        return { icon: 'information-circle', color: '#FF9800', bgColor: '#FFF3E0' };
-      case 'Sakit':
-        return { icon: 'medkit', color: '#F44336', bgColor: '#FFEBEE' };
-      case 'Alpha':
-        return { icon: 'close-circle', color: '#9E9E9E', bgColor: '#F5F5F5' };
+      case "Hadir":
+        return {
+          icon: "checkmark-circle",
+          color: "#4CAF50",
+          bgColor: "#E8F5E9",
+        };
+      case "Izin":
+        return {
+          icon: "information-circle",
+          color: "#FF9800",
+          bgColor: "#FFF3E0",
+        };
+      case "Sakit":
+        return { icon: "medkit", color: "#F44336", bgColor: "#FFEBEE" };
+      case "Alpha":
+        return { icon: "close-circle", color: "#9E9E9E", bgColor: "#F5F5F5" };
       default:
-        return { icon: 'checkmark-circle', color: '#4A90E2', bgColor: '#E3F2FD' };
+        return {
+          icon: "checkmark-circle",
+          color: "#4A90E2",
+          bgColor: "#E3F2FD",
+        };
     }
   };
 
   const statusConfig = getStatusConfig();
 
   return (
-    <View
-      style={styles.card}
-    >
+    <View style={styles.card}>
       {/* Date Section */}
       <View style={styles.dateSection}>
         <View style={styles.dateBox}>
@@ -81,8 +99,14 @@ const RiwayatCard = ({
       </View>
 
       {/* Status Badge */}
-      <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}>
-        <Ionicons name={statusConfig.icon} size={16} color={statusConfig.color} />
+      <View
+        style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}
+      >
+        <Ionicons
+          name={statusConfig.icon}
+          size={16}
+          color={statusConfig.color}
+        />
         <Text style={[styles.statusText, { color: statusConfig.color }]}>
           {status}
         </Text>
@@ -103,7 +127,11 @@ type RiwayatListProps = {
   onCardPress?: (item: RiwayatCardProps) => void;
 };
 
-export const RiwayatList = ({ data, onSeeAll, onCardPress }: RiwayatListProps) => {
+export const RiwayatList = ({
+  data,
+  onSeeAll,
+  onCardPress,
+}: RiwayatListProps) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -135,97 +163,97 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#001933',
+    fontWeight: "700",
+    color: "#001933",
     letterSpacing: 0.3,
   },
   seeAllButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   seeAllText: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#4A90E2',
+    fontWeight: "600",
+    color: "#4A90E2",
     letterSpacing: 0.2,
   },
   cardList: {
     gap: 12,
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: 16,
-    shadowColor: '#001933',
+    shadowColor: "#001933",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#F0F0F0',
-    position: 'relative',
+    borderColor: "#F0F0F0",
+    position: "relative",
   },
   dateSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
   dateBox: {
     width: 60,
     height: 60,
-    backgroundColor: '#E3F2FD',
+    backgroundColor: "#E3F2FD",
     borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   dateNumber: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#4A90E2',
+    fontWeight: "700",
+    color: "#4A90E2",
     lineHeight: 28,
   },
   dateMonth: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#4A90E2',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    color: "#4A90E2",
+    textTransform: "uppercase",
   },
   dateInfo: {
     flex: 1,
   },
   dayName: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#001933',
+    fontWeight: "700",
+    color: "#001933",
     marginBottom: 2,
   },
   yearText: {
     fontSize: 13,
-    fontWeight: '500',
-    color: '#666666',
+    fontWeight: "500",
+    color: "#666666",
   },
   divider: {
     height: 1,
-    backgroundColor: '#F0F0F0',
+    backgroundColor: "#F0F0F0",
     marginBottom: 16,
   },
   timeSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 16,
   },
   timeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     flex: 1,
   },
@@ -234,21 +262,21 @@ const styles = StyleSheet.create({
   },
   timeLabel: {
     fontSize: 11,
-    fontWeight: '600',
-    color: '#999999',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    color: "#999999",
+    textTransform: "uppercase",
     letterSpacing: 0.3,
     marginBottom: 2,
   },
   timeValue: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#001933',
+    fontWeight: "700",
+    color: "#001933",
   },
   statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -256,13 +284,13 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0.3,
   },
   arrowIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: 16,
-    top: '50%',
+    top: "50%",
     marginTop: -10,
   },
 });
