@@ -1,23 +1,24 @@
 import axios from "axios";
+import { storage } from "../storage";
 
-const API_BASE_URL = "http://localhost:8000/api";
+// const API_BASE_URL = "http://192.168.1.8:8000/api"; 
+const API_BASE_URL = "http://10.0.2.2:8000/api";
+
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     Accept: "application/json",
+    "Content-Type": "application/json",
   },
 });
 
-// Interceptor request
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token");
+  async (config) => {
+    const token = await storage.get("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-
-    // Kalau datanya FormData, biarkan axios yang set Content-Type
     if (config.data instanceof FormData) {
       delete config.headers["Content-Type"];
     }
@@ -27,14 +28,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor response
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
+      storage.remove("token");
+      storage.remove("user");
     }
     return Promise.reject(error);
   }

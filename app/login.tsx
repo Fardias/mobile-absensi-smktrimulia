@@ -9,32 +9,48 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
 
-  const handleLogin = () => {
-    if (!username || !password) {
-      alert('Mohon isi username dan password');
+  const handleChange = (name: string, value: string) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (error) setError('');
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.username || !formData.password) {
+      setError('Mohon isi username dan password');
       return;
     }
 
-    setIsLoading(true);
-    
-    // Simulasi proses login
-    setTimeout(() => {
-      setIsLoading(false);
-      // Navigasi ke halaman beranda setelah login berhasil
-      router.replace('/(tabs)');
-    }, 1500);
+    setError('');
+    const result = await login(formData);
+
+    if (result.success) {
+      const role = result?.data?.role || '';
+      if (role === 'siswa') {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/(tabs)');
+      }
+    } else {
+      setError(result.message || 'Username atau password salah');
+    }
   };
 
   return (
@@ -61,8 +77,8 @@ export default function LoginScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Username"
-                value={username}
-                onChangeText={setUsername}
+                value={formData.username}
+                onChangeText={value => handleChange('username', value)}
                 autoCapitalize="none"
               />
             </View>
@@ -72,8 +88,8 @@ export default function LoginScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
+                value={formData.password}
+                onChangeText={value => handleChange('password', value)}
                 secureTextEntry={!showPassword}
               />
               <TouchableOpacity 
@@ -88,15 +104,29 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            ) : null}
+
             <TouchableOpacity 
               style={styles.loginButton}
-              onPress={handleLogin}
-              disabled={isLoading}
+              onPress={handleSubmit}
             >
-              <Text style={styles.loginButtonText}>
-                {isLoading ? 'Loading...' : 'Login'}
-              </Text>
+              {false ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <Text style={styles.loginButtonText}> Memproses...</Text>
+                </View>
+              ) : (
+                <Text style={styles.loginButtonText}>Masuk</Text>
+              )}
             </TouchableOpacity>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>© 2024 SMK Trimulia. All rights reserved.</Text>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -158,8 +188,20 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 8,
   },
+  errorContainer: {
+    backgroundColor: '#FEE2E2',
+    borderWidth: 1,
+    borderColor: '#FCA5A5',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 16,
+  },
+  errorText: {
+    color: '#B91C1C',
+    fontSize: 14,
+  },
   loginButton: {
-    backgroundColor: '#4A90E2',
+    backgroundColor: '#003366',
     borderRadius: 8,
     height: 50,
     justifyContent: 'center',
@@ -170,5 +212,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  footer: {
+    marginTop: 32,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#9CA3AF',
   },
 });

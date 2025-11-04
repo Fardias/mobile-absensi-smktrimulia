@@ -1,8 +1,9 @@
-import { Redirect, Stack } from "expo-router";
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
+import { Stack, Redirect } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { LogBox, useColorScheme } from "react-native";
+import { LogBox, useColorScheme, View, ActivityIndicator } from "react-native";
+import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
 SplashScreen.setOptions({
   duration: 1000,
@@ -10,58 +11,88 @@ SplashScreen.setOptions({
 });
 
 SplashScreen.preventAutoHideAsync();
-
 LogBox.ignoreAllLogs(true);
 
-// Fungsi untuk mengecek apakah user sudah login atau belum
-// Untuk contoh ini, kita anggap belum login
-const isAuthenticated = false;
-
-export default function RootLayout() {
+// Komponen utama yang akan mengatur redirect & splash screen
+function RootNavigation() {
+  const { isAuthenticated, loading, user } = useAuth();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    // Sembunyikan splash screen setelah komponen dimuat
-    setTimeout(async () => {
+    const hideSplash = async () => {
       await SplashScreen.hideAsync();
-    }, 1000);
+    };
+    hideSplash();
   }, []);
 
+  // Tampilkan loading screen sementara auth context inisialisasi
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#fff",
+        }}
+      >
+        <ActivityIndicator size="large" color="#003366" />
+      </View>
+    );
+  }
+
   return (
-    <Stack>
-      <Stack.Screen 
-        name="index"
-        redirect={true}
-      />
-      
-      <Stack.Screen
-        name="login"
-        options={{
-          headerShown: false,
-          animation: "fade",
-        }}
-      />
+    <>
+      {/* Jika user belum login, arahkan ke /login */}
+      {!isAuthenticated ? (
+        <Redirect href="/login" />
+      ) : (
+        // Jika sudah login, arahkan ke dashboard sesuai role
+        <Redirect
+          href={user?.role === "siswa" ? "/siswa/home" : "/dashboard" as any}
+        />
+      )}
 
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-          // Mencegah navigasi kembali ke halaman login
-          gestureEnabled: false,
-        }}
-      />
+      <Stack>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
 
-      <Stack.Screen
-        name="+not-found"
-        options={{
-          headerShown: false
-        }}
-      />
+        <Stack.Screen
+          name="login"
+          options={{
+            headerShown: false,
+            animation: "fade",
+          }}
+        />
+
+        <Stack.Screen
+          name="(tabs)"
+          options={{
+            headerShown: false,
+            gestureEnabled: false, // tidak bisa swipe balik ke login
+          }}
+        />
+
+        <Stack.Screen
+          name="+not-found"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
 
       <StatusBar
         style={colorScheme === "dark" ? "light" : "dark"}
         backgroundColor={colorScheme === "dark" ? "#000" : "#fff"}
       />
-    </Stack>
+    </>
+  );
+}
+
+// Bungkus semuanya dengan AuthProvider
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootNavigation />
+    </AuthProvider>
   );
 }

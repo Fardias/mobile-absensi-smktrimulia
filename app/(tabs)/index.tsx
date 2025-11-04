@@ -1,9 +1,9 @@
-import { StyleSheet, View, Text, ScrollView } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import TimeCard from "../../components/TimeCard";
 import ActionButton from "@/components/ActionButton";
-import RiwayatCard, { RiwayatList } from '@/components/RiwayatCard';
+import RiwayatCard from '@/components/RiwayatCard';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import TimeCard from "../../components/TimeCard";
 
 export default function Index() {
   const riwayatData = [
@@ -47,7 +47,7 @@ export default function Index() {
             style={styles.headerGradient}
           >
             <View style={styles.greetings}>
-              <Text style={styles.greetingText}>Hai, Fardias Alfathan 👋</Text>
+              <Text style={styles.greetingText}>Hai, Fardias Altaf 👋</Text>
               <Text style={styles.dateText}>{`${dayName}, ${date} ${monthName} ${year}`}</Text>
             </View>
           </LinearGradient>
