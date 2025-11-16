@@ -4,8 +4,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import TimeCard from "../../components/TimeCard";
+import { useEffect, useMemo, useState } from 'react';
+import { generalAPI, Pengaturan } from "../../lib/api/general";
 
 export default function Index() {
+  const [pengaturan, setPengaturan] = useState<Pengaturan | null>(null);
+  const [loadingPengaturan, setLoadingPengaturan] = useState(false);
+  const [errorPengaturan, setErrorPengaturan] = useState<string | null>(null);
   const riwayatData = [
     {
       hari: 'Senin',
@@ -32,6 +37,48 @@ export default function Index() {
   const date = today.getDate();
   const year = today.getFullYear();
 
+
+  useEffect(() => {
+    const fetchPengaturan = async () => {
+      try {
+        setLoadingPengaturan(true);
+        const { data } = await generalAPI.getPengaturan();
+        setPengaturan(data?.data ?? data); // ApiResponse wrapper atau raw
+      } catch (e: any) {
+        setErrorPengaturan(e?.response?.data?.message || 'Gagal memuat pengaturan');
+      } finally {
+        setLoadingPengaturan(false);
+      }
+    };
+    fetchPengaturan();
+  }, []);
+
+  const formatJam = (jam?: string) => {
+    if (!jam) return '-';
+    const parts = jam.split(':');
+    return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+  };
+
+  const jamMasuk = useMemo(() => formatJam(pengaturan?.jam_masuk), [pengaturan]);
+  const jamPulang = useMemo(() => formatJam(pengaturan?.jam_pulang), [pengaturan]);
+  const toleransiMenit = pengaturan?.toleransi_telat ?? 0;
+
+  const isWithinCheckIn = useMemo(() => {
+    if (!pengaturan?.jam_masuk) return false;
+    const [h, m] = pengaturan.jam_masuk.split(':').map((x) => parseInt(x, 10));
+    const start = new Date(today);
+    start.setHours(h || 0, m || 0, 0, 0);
+    return today.getTime() >= start.getTime();
+  }, [pengaturan, today]);
+
+  const isWithinCheckOut = useMemo(() => {
+    if (!pengaturan?.jam_pulang) return false;
+    const [h, m] = pengaturan.jam_pulang.split(':').map((x) => parseInt(x, 10));
+    const start = new Date(today);
+    start.setHours(h || 0, m || 0, 0, 0);
+    return today.getTime() >= start.getTime();
+  }, [pengaturan, today]);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top']}>
@@ -56,9 +103,17 @@ export default function Index() {
           <View style={styles.timeCardSection}>
             {/* <Text style={styles.sectionTitle}>Jam Masuk dan Keluar Hari Ini</Text> */}
             <View style={styles.timeCardContainer}>
-              <TimeCard judul="Jam Datang" jam="06:30" />
-              <TimeCard judul="Jam Pulang" jam="15:00" />
+              <TimeCard judul="Jam Datang" jam={jamMasuk} />
+              <TimeCard judul="Jam Pulang" jam={jamPulang} />
             </View>
+            {pengaturan && (
+              <Text style={styles.toleransiText}>
+                Toleransi keterlambatan: {toleransiMenit} menit
+              </Text>
+            )}
+            {errorPengaturan && (
+              <Text style={styles.errorText}>{errorPengaturan}</Text>
+            )}
           </View>
 
           {/* Action Buttons Section */}
@@ -69,11 +124,13 @@ export default function Index() {
                 iconName="time"
                 iconText="Absen Datang"
                 type="absenDatang"
+                disabled={!isWithinCheckIn || loadingPengaturan || !pengaturan}
               />
               <ActionButton
                 iconName="time"
                 iconText="Absen Pulang"
                 type="absenPulang"
+                disabled={!isWithinCheckOut || loadingPengaturan || !pengaturan}
               />
               <ActionButton
                 iconName="time"
@@ -153,6 +210,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: 12,
   },
+  toleransiText: {
+    marginTop: 8,
+    color: '#357ABD',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  errorText: {
+    marginTop: 8,
+    color: '#D32F2F',
+    fontSize: 13,
+    fontWeight: '600',
+  },
   actionSection: {
     paddingHorizontal: 20,
     marginTop: 32,
@@ -168,3 +237,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+  

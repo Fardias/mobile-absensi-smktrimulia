@@ -30,6 +30,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         try {
           const response = await authAPI.me();
           if (response.data.responseStatus) {
+            // setUser(JSON.parse(storedUser));
             setUser(storedUser);
             setToken(storedToken);
           } else {
@@ -51,6 +52,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     try {
       // kirim JSON langsung, tidak perlu FormData
       const response = await authAPI.login(credentials);
+      
       const data = response.data;
 
       console.log("Response login:", data); // tambahkan ini untuk debug

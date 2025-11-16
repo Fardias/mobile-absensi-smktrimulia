@@ -1,12 +1,13 @@
 import axios from "axios";
 import { storage } from "../storage";
 
-// const API_BASE_URL = "http://192.168.1.8:8000/api"; 
-const API_BASE_URL = "http://10.0.2.2:8000/api";
+const API_BASE_URL = "http://192.168.100.7:8000/api"; 
+// const API_BASE_URL = "http://10.0.2.2:8000/api";
 
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 5000,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

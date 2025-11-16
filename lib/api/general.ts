@@ -1,8 +1,14 @@
 import api from "./index";
 
 export const generalAPI = {
-  totalSiswa: () => api.get("/total-siswa"),
-  siswaHadirHariIni: () => api.get("/hadir-hariini"),
-  siswaTerlambatHariIni: () => api.get("/terlambat-hariini"),
-  siswaIzinHariIni: () => api.get("/izinsakit-hariini"),
+  getPengaturan: () => api.get("/pengaturan"),
+};
+
+export type Pengaturan = {
+  latitude: number;
+  longitude: number;
+  radius_meter: number;
+  jam_masuk: string; // HH:MM:SS atau HH:MM
+  jam_pulang: string; // HH:MM:SS atau HH:MM
+  toleransi_telat: number;
 };

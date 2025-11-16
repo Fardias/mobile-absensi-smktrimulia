@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -19,7 +19,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    username: string,
+    password: string
+  }>({
     username: '',
     password: ''
   });
@@ -28,9 +31,14 @@ export default function LoginScreen() {
   const { login } = useAuth();
 
   const handleChange = (name: string, value: string) => {
+    // console.log(name, value);
     setFormData(prev => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
+  console.log("formData keys", Object.keys(formData));
+
+  // console.log("formData", formData);
+
 
   const handleSubmit = async () => {
     if (!formData.username || !formData.password) {
@@ -38,8 +46,15 @@ export default function LoginScreen() {
       return;
     }
 
+    console.log("formData", formData);
+
     setError('');
+    console.log("CHECKPOINT A");
     const result = await login(formData);
+    console.log("CHECKPOINT B", result);
+
+    console.log(result);
+
 
     if (result.success) {
       const role = result?.data?.role || '';
@@ -62,9 +77,9 @@ export default function LoginScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
           <View style={styles.logoContainer}>
-            <Image 
-              source={require('../assets/images/icon.png')} 
-              style={styles.logo} 
+            <Image
+              source={require('../assets/images/icon.png')}
+              style={styles.logo}
               resizeMode="contain"
             />
             <Text style={styles.title}>SMK Trimulia</Text>
@@ -92,14 +107,14 @@ export default function LoginScreen() {
                 onChangeText={value => handleChange('password', value)}
                 secureTextEntry={!showPassword}
               />
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => setShowPassword(!showPassword)}
                 style={styles.eyeIcon}
               >
-                <Ionicons 
-                  name={showPassword ? "eye-outline" : "eye-off-outline"} 
-                  size={20} 
-                  color="#9CA3AF" 
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={20}
+                  color="#9CA3AF"
                 />
               </TouchableOpacity>
             </View>
@@ -110,7 +125,7 @@ export default function LoginScreen() {
               </View>
             ) : null}
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.loginButton}
               onPress={handleSubmit}
             >

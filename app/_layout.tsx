@@ -49,7 +49,7 @@ function RootNavigation() {
       ) : (
         // Jika sudah login, arahkan ke dashboard sesuai role
         <Redirect
-          href={user?.role === "siswa" ? "/siswa/home" : "/dashboard" as any}
+          href={user?.role === "siswa" ? "/" : "/" as any}
         />
       )}
 

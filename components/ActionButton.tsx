@@ -11,12 +11,14 @@ type Props = {
   iconText: string;
   type?: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
-export default function ActionButton({ iconName, iconText, onPress, type }: Props) {
+export default function ActionButton({ iconName, iconText, onPress, type, disabled = false }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handlePress = () => {
+    if (disabled) return;
     setModalVisible(true);
     onPress?.();
   };
@@ -56,14 +58,15 @@ export default function ActionButton({ iconName, iconText, onPress, type }: Prop
   return (
     <>
       <TouchableOpacity 
-        style={styles.card} 
+        style={[styles.card, disabled && styles.cardDisabled]} 
         onPress={handlePress}
         activeOpacity={0.7}
+        disabled={disabled}
       >
-        <View style={[styles.iconContainer, { backgroundColor: iconConfig.bgColor }]}>
-          <Ionicons name={iconConfig.icon} size={28} color={iconConfig.color} />
+        <View style={[styles.iconContainer, { backgroundColor: disabled ? '#F2F2F2' : iconConfig.bgColor }]}>
+          <Ionicons name={iconConfig.icon} size={28} color={disabled ? '#A0A0A0' : iconConfig.color} />
         </View>
-        <Text style={styles.iconLabel}>{iconText}</Text>
+        <Text style={[styles.iconLabel, disabled && styles.iconLabelDisabled]}>{iconText}</Text>
       </TouchableOpacity>
 
       <CustomModal visible={modalVisible} onClose={closeModal}>
@@ -90,6 +93,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#F0F0F0',
   },
+  cardDisabled: {
+    backgroundColor: '#FAFAFA',
+    borderColor: '#EFEFEF',
+  },
   iconContainer: {
     width: 56,
     height: 56,
@@ -105,4 +112,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.2,
   },
+  iconLabelDisabled: {
+    color: '#A0A0A0',
+  }
 });
