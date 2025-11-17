@@ -1,43 +1,114 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Button, StyleSheet, ActivityIndicator, Alert, Linking } from 'react-native';
 import { absensiAPI } from '../../lib/api/absensi';
+import * as Location from 'expo-location';
+import { Pengaturan } from '../../lib/api/general';
 
 type Props = {
     onClose: () => void;
+    pengaturan?: Pengaturan;
 };
 
-const AbsenPulang = ({ onClose } : Props) => {
+const AbsenPulang = ({ onClose, pengaturan } : Props) => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [distance, setDistance] = useState<number | null>(null);
+  const [radius, setRadius] = useState<number | null>(null);
 
+  // Ambil lokasi perangkat (foreground) menggunakan expo-location
   const getLocation = async (): Promise<{ latitude: number; longitude: number } | null> => {
-    return new Promise((resolve) => {
-      if (typeof navigator !== 'undefined' && navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-          () => resolve(null),
-          { enableHighAccuracy: true, timeout: 8000 }
-        );
-      } else {
-        resolve(null);
-      }
-    });
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      return null;
+    }
+    const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+    return { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
   };
 
+  // Konversi derajat ke radian
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  // Hitung jarak (meter) antar titik menggunakan Haversine
+  const calcDistanceMeters = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371000;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c);
+  };
+
+  // Proses absen pulang: kirim lokasi, backend memvalidasi waktu & radius
   const handleAbsen = async () => {
     try {
       setLoading(true);
       setMessage(null);
       setError(null);
       const loc = await getLocation();
-      const form = new FormData();
-      form.append('latitude', String(loc?.latitude ?? 0));
-      form.append('longitude', String(loc?.longitude ?? 0));
-      const { data } = await absensiAPI.absenPulang(form);
-      setMessage(data?.message || 'Berhasil absen pulang');
+      if (!loc) {
+        setError('Gagal mendapatkan lokasi.');
+        Alert.alert(
+          'Izin Lokasi Dibutuhkan',
+          'Lokasi tidak dapat diakses. Nyalakan GPS dan beri izin lokasi untuk aplikasi.',
+          [
+            { text: 'Tutup', style: 'cancel' },
+            { text: 'Buka Pengaturan', onPress: () => (Linking as any).openSettings?.() }
+          ]
+        );
+        return;
+      }
+
+      // hitung ulang jarak terhadap titik sekolah jika pengaturan tersedia
+      const dNow =
+        pengaturan
+          ? calcDistanceMeters(
+              loc.latitude,
+              loc.longitude,
+              pengaturan.latitude,
+              pengaturan.longitude
+            )
+          : null;
+      const rNow = pengaturan?.radius_meter ?? null;
+      setDistance(dNow ?? null);
+      setRadius(rNow ?? null);
+
+      const payload = { latitude: loc.latitude, longitude: loc.longitude };
+      const { data } = await absensiAPI.absenPulang(payload);
+      const msg = data?.message || 'Berhasil absen pulang';
+      setMessage(msg);
+      const detail =
+        dNow != null && rNow != null
+          ? `\nJarak: ${dNow} m\nRadius: ${rNow} m\n${dNow <= rNow ? 'Dalam radius' : `Di luar radius • Selisih: ${Math.max(0, dNow - rNow)} m`}`
+          : '';
+      Alert.alert('Berhasil', `${msg}${detail}`);
     } catch (e: any) {
-      setError(e?.response?.data?.message || 'Gagal absen pulang');
+      const status = e?.response?.status;
+      const resp = e?.response?.data || {};
+      const errMsg = resp?.responseMessage || resp?.message || (status === 401
+        ? 'Sesi berakhir, silakan login ulang'
+        : status === 403
+          ? 'Akses ditolak'
+          : status === 422
+            ? 'Validasi gagal'
+            : (e?.message || 'Gagal absen pulang'));
+      const serverDistance = resp?.errors?.distance ?? resp?.responseData?.distance ?? resp?.data?.distance;
+      let detail = '';
+      if (/radius/i.test(String(errMsg)) || typeof serverDistance === 'number') {
+        const d = typeof serverDistance === 'number' ? serverDistance : distance ?? null;
+        const r = radius ?? null;
+        if (d != null && r != null) {
+          const delta = Math.max(0, d - r);
+          setError(`${errMsg} • Selisih: ${delta} m`);
+          detail = `\nJarak: ${d} m\nRadius: ${r} m\nDi luar radius • Selisih: ${delta} m`;
+        } else {
+          setError(errMsg);
+        }
+      } else {
+        setError(errMsg);
+      }
+      Alert.alert('Gagal', `${errMsg}${detail}`);
     } finally {
       setLoading(false);
     }
@@ -47,6 +118,12 @@ const AbsenPulang = ({ onClose } : Props) => {
     <View>
       <Text style={styles.modalTitle}>Absen Pulang</Text>
       <Text style={styles.modalText}>Pastikan berada dalam radius lokasi sekolah.</Text>
+      {radius != null && (
+        <Text style={styles.info}>Batas radius: {radius} m</Text>
+      )}
+      {distance != null && (
+        <Text style={styles.info}>Jarak Anda: {distance} m{radius != null ? ` • ${distance <= radius ? 'Dalam radius' : 'Di luar radius'}` : ''}</Text>
+      )}
       {loading && <ActivityIndicator />}
       {message && <Text style={styles.success}>{message}</Text>}
       {error && <Text style={styles.error}>{error}</Text>}
@@ -75,6 +152,11 @@ const styles = StyleSheet.create({
   error: {
     color: '#D32F2F',
     marginBottom: 8,
+    fontWeight: '600',
+  },
+  info: {
+    color: '#357ABD',
+    marginBottom: 6,
     fontWeight: '600',
   }
 });

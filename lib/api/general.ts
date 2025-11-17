@@ -1,7 +1,11 @@
 import api from "./index";
 
 export const generalAPI = {
-  getPengaturan: () => api.get("/pengaturan"),
+  async getPengaturan() {
+    const res = await api.get("/pengaturan");
+    const payload = res?.data?.responseData ?? res?.data;
+    return { data: payload } as { data: Pengaturan };
+  },
 };
 
 export type Pengaturan = {

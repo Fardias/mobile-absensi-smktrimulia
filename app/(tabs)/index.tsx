@@ -6,11 +6,17 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import TimeCard from "../../components/TimeCard";
 import { useEffect, useMemo, useState } from 'react';
 import { generalAPI, Pengaturan } from "../../lib/api/general";
+import { useAuth } from "../../contexts/AuthContext";
+import { absensiAPI } from "../../lib/api/absensi";
+import { RiwayatList } from "../../components/RiwayatCard";
 
 export default function Index() {
   const [pengaturan, setPengaturan] = useState<Pengaturan | null>(null);
   const [loadingPengaturan, setLoadingPengaturan] = useState(false);
   const [errorPengaturan, setErrorPengaturan] = useState<string | null>(null);
+  const [riwayatHariIni, setRiwayatHariIni] = useState<any | null>(null);
+  const [loadingRiwayat, setLoadingRiwayat] = useState(false);
+  const { user } = useAuth();
   const riwayatData = [
     {
       hari: 'Senin',
@@ -39,11 +45,12 @@ export default function Index() {
 
 
   useEffect(() => {
+    // Muat pengaturan sekolah (lokasi, radius, jam, toleransi)
     const fetchPengaturan = async () => {
       try {
         setLoadingPengaturan(true);
         const { data } = await generalAPI.getPengaturan();
-        setPengaturan(data?.data ?? data); // ApiResponse wrapper atau raw
+        setPengaturan(data);
       } catch (e: any) {
         setErrorPengaturan(e?.response?.data?.message || 'Gagal memuat pengaturan');
       } finally {
@@ -51,6 +58,23 @@ export default function Index() {
       }
     };
     fetchPengaturan();
+  }, []);
+
+  useEffect(() => {
+    // Muat status absensi hari ini untuk siswa
+    const fetchRiwayatHariIni = async () => {
+      try {
+        setLoadingRiwayat(true);
+        const { data } = await absensiAPI.riwayatAbsenHariIni();
+        const payload = (data?.responseData ?? data) || null;
+        setRiwayatHariIni(payload);
+      } catch (e) {
+        setRiwayatHariIni(null);
+      } finally {
+        setLoadingRiwayat(false);
+      }
+    };
+    fetchRiwayatHariIni();
   }, []);
 
   const formatJam = (jam?: string) => {
@@ -63,13 +87,16 @@ export default function Index() {
   const jamPulang = useMemo(() => formatJam(pengaturan?.jam_pulang), [pengaturan]);
   const toleransiMenit = pengaturan?.toleransi_telat ?? 0;
 
-  const isWithinCheckIn = useMemo(() => {
+  const canCheckInWindow = useMemo(() => {
     if (!pengaturan?.jam_masuk) return false;
     const [h, m] = pengaturan.jam_masuk.split(':').map((x) => parseInt(x, 10));
     const start = new Date(today);
     start.setHours(h || 0, m || 0, 0, 0);
-    return today.getTime() >= start.getTime();
-  }, [pengaturan, today]);
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + toleransiMenit);
+    const now = today.getTime();
+    return now >= start.getTime() && now <= end.getTime();
+  }, [pengaturan, today, toleransiMenit]);
 
   const isWithinCheckOut = useMemo(() => {
     if (!pengaturan?.jam_pulang) return false;
@@ -93,13 +120,14 @@ export default function Index() {
             end={{ x: 1, y: 1 }}
             style={styles.headerGradient}
           >
+            {/* Header: sapaan pengguna (khusus siswa) dan tanggal hari ini */}
             <View style={styles.greetings}>
-              <Text style={styles.greetingText}>Hai, Fardias Altaf 👋</Text>
+              <Text style={styles.greetingText}>Hai, {user?.nama || user?.username || 'Pengguna'} 👋</Text>
               <Text style={styles.dateText}>{`${dayName}, ${date} ${monthName} ${year}`}</Text>
             </View>
           </LinearGradient>
 
-          {/* Time Cards Section */}
+          {/* Time Cards: jam datang/pulang dari pengaturan sekolah */}
           <View style={styles.timeCardSection}>
             {/* <Text style={styles.sectionTitle}>Jam Masuk dan Keluar Hari Ini</Text> */}
             <View style={styles.timeCardContainer}>
@@ -116,7 +144,7 @@ export default function Index() {
             )}
           </View>
 
-          {/* Action Buttons Section */}
+          {/* Aksi Absensi: Datang, Pulang, dan Izin/Sakit */}
           <View style={styles.actionSection}>
             <Text style={styles.sectionTitle}>Menu Absensi</Text>
             <View style={styles.actionButtonContainer}>
@@ -124,13 +152,15 @@ export default function Index() {
                 iconName="time"
                 iconText="Absen Datang"
                 type="absenDatang"
-                disabled={!isWithinCheckIn || loadingPengaturan || !pengaturan}
+                disabled={!canCheckInWindow || loadingPengaturan || !pengaturan || !!riwayatHariIni?.jam_datang}
+                pengaturan={pengaturan}
               />
               <ActionButton
                 iconName="time"
                 iconText="Absen Pulang"
                 type="absenPulang"
                 disabled={!isWithinCheckOut || loadingPengaturan || !pengaturan}
+                pengaturan={pengaturan}
               />
               <ActionButton
                 iconName="time"
@@ -148,9 +178,32 @@ export default function Index() {
             onSeeAll={() => console.log('Lihat semua')}
             onCardPress={(item) => console.log('Card pressed', item)}
           /> */}
-          <View style={{paddingHorizontal: 20, marginTop: 20}}>
+          {/* Status Absensi Hari Ini */}
+          <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
             <Text style={styles.sectionTitle}>Status Absensi Hari Ini</Text>
-            <RiwayatCard hari="Senin" tanggal="01" bulan="Okt" tahun={2025} jamDatang="07:30" jamPulang="16:00" status="Hadir" />
+            {loadingRiwayat ? (
+              <Text style={styles.errorText}>Memuat...</Text>
+            ) : riwayatHariIni ? (
+              <RiwayatList
+                data={[{
+                  hari: dayName,
+                  tanggal: String(date).padStart(2, '0'),
+                  bulan: monthName.slice(0, 3),
+                  tahun: year,
+                  jamDatang: riwayatHariIni.jam_datang ?? '-',
+                  jamPulang: riwayatHariIni.jam_pulang ?? '-',
+                  status: (riwayatHariIni.status ?? 'Hadir')
+                    .replace(/^hadir$/i, 'Hadir')
+                    .replace(/^terlambat$/i, 'Terlambat')
+                    .replace(/^izin$/i, 'Izin')
+                    .replace(/^sakit$/i, 'Sakit')
+                    .replace(/^alfa$/i, 'Alpha')
+                }]}
+                showHeader={false}
+              />
+            ) : (
+              <Text style={styles.errorText}>Belum ada absensi hari ini</Text>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>

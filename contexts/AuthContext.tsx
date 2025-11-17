@@ -22,6 +22,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    // Inisialisasi auth dari storage dan verifikasi ke server
     const initAuth = async () => {
       const storedToken = await storage.get("token");
       const storedUser = await storage.get("user");
@@ -30,9 +31,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         try {
           const response = await authAPI.me();
           if (response.data.responseStatus) {
-            // setUser(JSON.parse(storedUser));
-            setUser(storedUser);
-            setToken(storedToken);
+            // Aplikasi mobile difokuskan untuk role 'siswa'
+            const freshUser: User = response.data.responseData;
+            if (freshUser?.role === "siswa") {
+              setUser(freshUser);
+              setToken(storedToken);
+              await storage.set("user", freshUser);
+            } else {
+              await storage.remove("token");
+              await storage.remove("user");
+            }
           } else {
             await storage.remove("token");
             await storage.remove("user");
@@ -50,29 +58,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const login = async (credentials: { username: string; password: string }) => {
     try {
-      // kirim JSON langsung, tidak perlu FormData
+      // Kirim JSON langsung; backend mengembalikan user + access_token
       const response = await authAPI.login(credentials);
       
       const data = response.data;
 
-      console.log("Response login:", data); // tambahkan ini untuk debug
-
       if (data.responseStatus) {
         const { access_token } = data.responseHeader;
         const userData: User = data.responseData;
-
+        // Hanya izinkan login jika role siswa
+        if (userData?.role !== "siswa") {
+          return { success: false, message: "Aplikasi ini khusus untuk siswa" };
+        }
         await storage.set("token", access_token);
-        await storage.set("user", JSON.stringify(userData));
-
+        await storage.set("user", userData);
         setToken(access_token);
         setUser(userData);
-
         return { success: true, data: userData };
       } else {
         return { success: false, message: data.responseMessage };
       }
     } catch (error: any) {
-      console.error("Login error:", error.response?.data || error.message);
       return {
         success: false,
         message:
@@ -98,6 +104,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const refreshToken = async () => {
     try {
+      // Refresh token akses jika tersedia
       const response = await authAPI.refresh();
       const data = response.data;
 
@@ -109,7 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
       return false;
     } catch (error) {
-      console.error("Token refresh error:", error);
+      // Bila gagal refresh, lakukan logout agar sesi bersih
       logout();
       return false;
     }

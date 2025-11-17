@@ -5,11 +5,6 @@ import { useEffect } from "react";
 import { LogBox, useColorScheme, View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
-SplashScreen.setOptions({
-  duration: 1000,
-  fade: true,
-});
-
 SplashScreen.preventAutoHideAsync();
 LogBox.ignoreAllLogs(true);
 

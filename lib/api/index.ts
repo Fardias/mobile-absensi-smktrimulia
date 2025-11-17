@@ -1,10 +1,11 @@
 import axios from "axios";
 import { storage } from "../storage";
 
-const API_BASE_URL = "http://192.168.100.7:8000/api"; 
+const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.dev/api"; 
 // const API_BASE_URL = "http://10.0.2.2:8000/api";
 
 
+// Klien HTTP: baseURL (ngrok saat pengembangan) dan header default
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 5000,
@@ -14,6 +15,7 @@ const api = axios.create({
   },
 });
 
+// Sisipkan token Bearer jika tersedia; hapus header saat FormData
 api.interceptors.request.use(
   async (config) => {
     const token = await storage.get("token");
@@ -29,6 +31,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Jika 401, bersihkan storage; redirect dilakukan oleh AuthContext
 api.interceptors.response.use(
   (response) => response,
   (error) => {

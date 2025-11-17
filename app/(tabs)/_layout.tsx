@@ -67,7 +67,7 @@ export default function TabsLayout() {
           name="riwayat"
           options={{
             title: "Riwayat",
-            headerTitle: "Riwayat Absen",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "time" : "time-outline"}
@@ -81,7 +81,7 @@ export default function TabsLayout() {
           name="profile"
           options={{
             title: "Profile",
-            headerTitle: "Profile",
+            headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "person" : "person-outline"}

@@ -28,34 +28,23 @@ export default function LoginScreen() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleChange = (name: string, value: string) => {
-    // console.log(name, value);
     setFormData(prev => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
-  console.log("formData keys", Object.keys(formData));
-
-  // console.log("formData", formData);
-
-
+  // Proses login; AuthContext akan menolak selain role 'siswa'
   const handleSubmit = async () => {
     if (!formData.username || !formData.password) {
       setError('Mohon isi username dan password');
       return;
     }
-
-    console.log("formData", formData);
-
     setError('');
-    console.log("CHECKPOINT A");
+    setLoading(true);
     const result = await login(formData);
-    console.log("CHECKPOINT B", result);
-
-    console.log(result);
-
-
+    
     if (result.success) {
       const role = result?.data?.role || '';
       if (role === 'siswa') {
@@ -66,6 +55,7 @@ export default function LoginScreen() {
     } else {
       setError(result.message || 'Username atau password salah');
     }
+    setLoading(false);
   };
 
   return (
@@ -128,8 +118,9 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleSubmit}
+              disabled={loading}
             >
-              {false ? (
+              {loading ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color="#FFFFFF" />
                   <Text style={styles.loginButtonText}> Memproses...</Text>

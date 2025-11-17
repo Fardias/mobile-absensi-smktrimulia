@@ -5,6 +5,7 @@ import AbsenDatang from './Modal/AbsenDatang';
 import AbsenPulang from './Modal/AbsenPulang';
 import IzinSakit from './Modal/IzinSakit';
 import CustomModal from './CustomModal';
+import { Pengaturan } from "../lib/api/general";
 
 type Props = {
   iconName: any;
@@ -12,9 +13,10 @@ type Props = {
   type?: string;
   onPress?: () => void;
   disabled?: boolean;
+  pengaturan?: Pengaturan | null;
 }
 
-export default function ActionButton({ iconName, iconText, onPress, type, disabled = false }: Props) {
+export default function ActionButton({ iconName, iconText, onPress, type, disabled = false, pengaturan }: Props) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const handlePress = () => {
@@ -30,9 +32,9 @@ export default function ActionButton({ iconName, iconText, onPress, type, disabl
   const getModalContentComponent = () => {
     switch (type) {
       case 'absenDatang':
-        return <AbsenDatang onClose={closeModal} />;
+        return <AbsenDatang onClose={closeModal} pengaturan={pengaturan ?? undefined} />;
       case 'absenPulang':
-        return <AbsenPulang onClose={closeModal} />;
+        return <AbsenPulang onClose={closeModal} pengaturan={pengaturan ?? undefined} />;
       case 'izinSakit':
         return <IzinSakit onClose={closeModal} />;
       default:

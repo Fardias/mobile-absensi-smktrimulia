@@ -10,6 +10,6 @@ export const guruAPI = {
   aktifitasTerbaru: () => api.get("/aktivitas-terbaru"),
   getSiswaIzinSakit: () => api.get("/absensi/siswaIzinSakit"),
   updateAbsensiStatus: (data: FormData) => api.post("/absensi/updateStatus", data),
-  lihatAbsensiSiswa: (params: { id: string }) => api.get("/absensi/lihat", { params }),
+  lihatAbsensiSiswa: (params?: Record<string, any>) => api.get("/absensi/lihat", { params }),
   lihatAbsensiHariIni: () => api.get("/absensi/hari-ini"),
 };

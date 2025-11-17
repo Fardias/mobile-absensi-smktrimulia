@@ -125,24 +125,28 @@ type RiwayatListProps = {
   data: RiwayatCardProps[];
   onSeeAll?: () => void;
   onCardPress?: (item: RiwayatCardProps) => void;
+  showHeader?: boolean;
 };
 
 export const RiwayatList = ({
   data,
   onSeeAll,
   onCardPress,
+  showHeader = true,
 }: RiwayatListProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Status Absensi Hari Ini</Text>
-        {onSeeAll && (
-          <TouchableOpacity onPress={onSeeAll} style={styles.seeAllButton}>
-            <Text style={styles.seeAllText}>Lihat semua riwayat</Text>
-            <Ionicons name="arrow-forward" size={16} color="#4A90E2" />
-          </TouchableOpacity>
-        )}
-      </View>
+      {showHeader && (
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Status Absensi Hari Ini</Text>
+          {onSeeAll && (
+            <TouchableOpacity onPress={onSeeAll} style={styles.seeAllButton}>
+              <Text style={styles.seeAllText}>Lihat semua riwayat</Text>
+              <Ionicons name="arrow-forward" size={16} color="#4A90E2" />
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
 
       <View style={styles.cardList}>
         {data.map((item, index) => (
