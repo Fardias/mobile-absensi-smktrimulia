@@ -163,8 +163,7 @@ export const RiwayatList = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    marginTop: 24,
+    marginTop: 5,
   },
   header: {
     flexDirection: "row",

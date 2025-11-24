@@ -1,6 +1,7 @@
 import { Stack, Redirect } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { AlertNotificationRoot } from 'react-native-alert-notification/lib/commonjs';
 import { useEffect } from "react";
 import { LogBox, useColorScheme, View, ActivityIndicator } from "react-native";
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
@@ -87,7 +88,30 @@ function RootNavigation() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootNavigation />
+      <AlertNotificationRoot
+        colors={[
+          {
+            label: '#1f2937',
+            card: '#ffffff',
+            overlay: '#003366',
+            success: '#16a34a',
+            danger: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6',
+          },
+          {
+            label: '#ffffff',
+            card: '#1f2937',
+            overlay: '#003366',
+            success: '#22c55e',
+            danger: '#f87171',
+            warning: '#f59e0b',
+            info: '#60a5fa',
+          },
+        ]}
+      >
+        <RootNavigation />
+      </AlertNotificationRoot>
     </AuthProvider>
   );
 }

@@ -72,8 +72,8 @@ export default function LoginScreen() {
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.title}>SMK Trimulia</Text>
-            <Text style={styles.subtitle}>Aplikasi Absensi</Text>
+            <Text style={styles.title}>SISENUS</Text>
+            <Text style={styles.subtitle}>SIstem abSENsi radiUS</Text>
           </View>
 
           <View style={styles.formContainer}>

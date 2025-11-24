@@ -49,20 +49,7 @@ export default function TabsLayout() {
           },
         }}
       >
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: "Beranda",
-            headerShown: false,
-            tabBarIcon: ({ color, focused }) => (
-              <Ionicons
-                name={focused ? "home" : "home-outline"}
-                size={24}
-                color={color}
-              />
-            ),
-          }}
-        />
+        
         <Tabs.Screen
           name="riwayat"
           options={{
@@ -71,6 +58,20 @@ export default function TabsLayout() {
             tabBarIcon: ({ color, focused }) => (
               <Ionicons
                 name={focused ? "time" : "time-outline"}
+                size={24}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="index"
+          options={{
+            title: "Beranda",
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <Ionicons
+                name={focused ? "home" : "home-outline"}
                 size={24}
                 color={color}
               />

@@ -6,5 +6,5 @@ export const absensiAPI = {
   izinSakit: (data: any) => api.post("/absensi/izinsakit", data),
   riwayat: (status?: string) => api.get("/absensi/riwayat", { params: status ? { status } : undefined }),
   riwayatAbsenHariIni: () => api.get("/absensi/hariini"),
-  profil: () => api.get("/profil"),
+  getDetailProfil: () => api.get("/getDetailProfilSiswa")
 };

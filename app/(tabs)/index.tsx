@@ -1,7 +1,7 @@
 import ActionButton from "@/components/ActionButton";
 import RiwayatCard from '@/components/RiwayatCard';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, RefreshControl } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import TimeCard from "../../components/TimeCard";
 import { useEffect, useMemo, useState } from 'react';
@@ -16,6 +16,7 @@ export default function Index() {
   const [errorPengaturan, setErrorPengaturan] = useState<string | null>(null);
   const [riwayatHariIni, setRiwayatHariIni] = useState<any | null>(null);
   const [loadingRiwayat, setLoadingRiwayat] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuth();
   const riwayatData = [
     {
@@ -77,6 +78,32 @@ export default function Index() {
     fetchRiwayatHariIni();
   }, []);
 
+  const onRefresh = async () => {
+    try {
+      setRefreshing(true);
+      setErrorPengaturan(null);
+      setLoadingPengaturan(true);
+      const pengaturanRes = await generalAPI.getPengaturan();
+      setPengaturan(pengaturanRes.data);
+    } catch (e: any) {
+      setErrorPengaturan(e?.response?.data?.message || 'Gagal memuat pengaturan');
+    } finally {
+      setLoadingPengaturan(false);
+    }
+
+    try {
+      setLoadingRiwayat(true);
+      const riwayatRes = await absensiAPI.riwayatAbsenHariIni();
+      const payload = (riwayatRes.data?.responseData ?? riwayatRes.data) || null;
+      setRiwayatHariIni(payload);
+    } catch (e) {
+      setRiwayatHariIni(null);
+    } finally {
+      setLoadingRiwayat(false);
+      setRefreshing(false);
+    }
+  };
+
   const formatJam = (jam?: string) => {
     if (!jam) return '-';
     const parts = jam.split(':');
@@ -108,8 +135,9 @@ export default function Index() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={styles.container}  edges={['top']} >
         <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
@@ -136,7 +164,7 @@ export default function Index() {
             </View>
             {pengaturan && (
               <Text style={styles.toleransiText}>
-                Toleransi keterlambatan: {toleransiMenit} menit
+                ⚠️ Toleransi keterlambatan: {toleransiMenit} menit
               </Text>
             )}
             {errorPengaturan && (
@@ -264,10 +292,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   toleransiText: {
-    marginTop: 8,
+    marginTop: 15,
     color: '#357ABD',
     fontSize: 13,
     fontWeight: '600',
+    textAlign: 'center',
   },
   errorText: {
     marginTop: 8,

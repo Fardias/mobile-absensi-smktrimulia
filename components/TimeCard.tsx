@@ -9,19 +9,20 @@ type Props = {
 
 const TimeCard = ({ judul, jam }: Props) => {
   const isJamDatang = judul.toLowerCase().includes('datang');
-  
+
   return (
     <View style={styles.card}>
-      <View style={styles.iconContainer}>
+      {/* <View style={styles.iconContainer}>
         <Ionicons 
           name={isJamDatang ? 'time-outline' : 'timer-outline'} 
           size={24} 
           color="#4A90E2" 
         />
-      </View>
+      </View> */}
+      <Text style={styles.cardTitle}>{judul}</Text>
+
       <View style={styles.textContainer}>
-        <Text style={styles.cardTitle}>{judul}</Text>
-        <Text style={styles.cardTime}>{jam}</Text>
+        <Text style={styles.cardTime}>{jam} WIB</Text>
       </View>
     </View>
   );
@@ -33,7 +34,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     shadowColor: '#001933',
     shadowOffset: { width: 0, height: 4 },
