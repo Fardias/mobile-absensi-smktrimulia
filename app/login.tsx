@@ -132,7 +132,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>© 2024 SMK Trimulia. All rights reserved.</Text>
+            <Text style={styles.footerText}>© 2025 SISENUS SMK Trimulia. All rights reserved.</Text>
           </View>
         </View>
       </TouchableWithoutFeedback>

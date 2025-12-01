@@ -8,7 +8,7 @@ const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.d
 // Klien HTTP: baseURL (ngrok saat pengembangan) dan header default
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 5000,
+  timeout: 15000,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

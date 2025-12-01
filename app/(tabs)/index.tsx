@@ -18,18 +18,6 @@ export default function Index() {
   const [loadingRiwayat, setLoadingRiwayat] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuth();
-  const riwayatData = [
-    {
-      hari: 'Senin',
-      tanggal: '01',
-      bulan: 'Okt',
-      tahun: 2025,
-      jamDatang: '07:30',
-      jamPulang: '16:00',
-      status: 'Hadir',
-    },
-    // ... data lainnya
-  ];
   const today = new Date();
 
   const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
@@ -67,7 +55,9 @@ export default function Index() {
       try {
         setLoadingRiwayat(true);
         const { data } = await absensiAPI.riwayatAbsenHariIni();
-        const payload = (data?.responseData ?? data) || null;
+        const payload = (data?.responseData) || null;
+        console.log('Riwayat absen hari ini:', payload);
+        
         setRiwayatHariIni(payload);
       } catch (e) {
         setRiwayatHariIni(null);
@@ -94,7 +84,7 @@ export default function Index() {
     try {
       setLoadingRiwayat(true);
       const riwayatRes = await absensiAPI.riwayatAbsenHariIni();
-      const payload = (riwayatRes.data?.responseData ?? riwayatRes.data) || null;
+      const payload = (riwayatRes.data?.responseData) || null;
       setRiwayatHariIni(payload);
     } catch (e) {
       setRiwayatHariIni(null);
@@ -132,6 +122,10 @@ export default function Index() {
     start.setHours(h || 0, m || 0, 0, 0);
     return today.getTime() >= start.getTime();
   }, [pengaturan, today]);
+
+
+  console.log('Riwayat absen hari ini:', riwayatHariIni);
+  
 
   return (
     <SafeAreaProvider>
