@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import AbsenDatang from './Modal/AbsenDatang';
-import AbsenPulang from './Modal/AbsenPulang';
-import IzinSakit from './Modal/IzinSakit';
-import CustomModal from './CustomModal';
+import { router, Href } from 'expo-router';
 import { Pengaturan } from "../lib/api/general";
 
 type Props = {
@@ -17,30 +14,25 @@ type Props = {
 }
 
 export default function ActionButton({ iconName, iconText, onPress, type, disabled = false, pengaturan }: Props) {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const handlePress = () => {
     if (disabled) return;
-    setModalVisible(true);
     onPress?.();
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
-  const getModalContentComponent = () => {
     switch (type) {
       case 'absenDatang':
-        return <AbsenDatang onClose={closeModal} pengaturan={pengaturan ?? undefined} />;
+        router.push('/absen-datang' as Href);
+        break;
       case 'absenPulang':
-        return <AbsenPulang onClose={closeModal} pengaturan={pengaturan ?? undefined} />;
+        router.push('/absen-pulang' as Href);
+        break;
       case 'izinSakit':
-        return <IzinSakit onClose={closeModal} />;
+        router.push('/izin-sakit' as Href);
+        break;
       default:
-        return <Text>Konten tidak ditemukan</Text>;
+        break;
     }
   };
+
+  const getModalContentComponent = () => null;
 
   const getIconConfig = () => {
     switch (type) {
@@ -59,8 +51,8 @@ export default function ActionButton({ iconName, iconText, onPress, type, disabl
 
   return (
     <>
-      <TouchableOpacity 
-        style={[styles.card, disabled && styles.cardDisabled]} 
+      <TouchableOpacity
+        style={[styles.card, disabled && styles.cardDisabled]}
         onPress={handlePress}
         activeOpacity={0.7}
         disabled={disabled}
@@ -70,10 +62,6 @@ export default function ActionButton({ iconName, iconText, onPress, type, disabl
         </View>
         <Text style={[styles.iconLabel, disabled && styles.iconLabelDisabled]}>{iconText}</Text>
       </TouchableOpacity>
-
-      <CustomModal visible={modalVisible} onClose={closeModal}>
-        {getModalContentComponent()}
-      </CustomModal>
     </>
   );
 }

@@ -10,7 +10,7 @@ export default function Riwayat() {
   const categories = [
     { key: 'semua', label: 'Semua' },
     { key: 'hadir', label: 'Hadir' },
-    { key: 'alfa', label: 'Alpha' },
+    { key: 'alpha', label: 'Alpha' },
     { key: 'izin', label: 'Izin' },
     { key: 'terlambat', label: 'Terlambat' },
     { key: 'sakit', label: 'Sakit' },
@@ -20,15 +20,34 @@ export default function Riwayat() {
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuth();
 
+  const parseServerDate = (str: string | undefined | null): Date | null => {
+    if (!str) return null;
+    const s = String(str).trim();
+    const dmY = /^([0-3]\d)-(0\d|1[0-2])-(\d{4})$/; // dd-mm-YYYY
+    const iso = /^(\d{4})-(0\d|1[0-2])-[0-3]\d/; // YYYY-MM-DD
+    if (dmY.test(s)) {
+      const [, dd, mm, yyyy] = s.match(dmY)!;
+      const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    if (iso.test(s)) {
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
   useEffect(() => {
     const fetch = async () => {
       try {
         setLoading(true);
-        const { data } = await absensiAPI.riwayat(selected === 'semua' ? undefined : selected);
+        const statusParam = selected === 'semua' ? undefined : selected.toLowerCase();
+        const { data } = await absensiAPI.riwayat(statusParam);
         const payload = data?.responseData ?? data;
         const list = Array.isArray(payload) ? payload : [];
         setData(list);
-        setFiltered(list);
+        setFiltered(selected === 'semua' ? list : list.filter((it) => String(it?.status || '').toLowerCase() === selected.toLowerCase()));
       } finally {
         setLoading(false);
       }
@@ -39,11 +58,12 @@ export default function Riwayat() {
   const onRefresh = async () => {
     try {
       setRefreshing(true);
-      const { data } = await absensiAPI.riwayat(selected === 'semua' ? undefined : selected);
+      const statusParam = selected === 'semua' ? undefined : selected.toLowerCase();
+      const { data } = await absensiAPI.riwayat(statusParam);
       const payload = data?.responseData ?? data;
       const list = Array.isArray(payload) ? payload : [];
       setData(list);
-      setFiltered(list);
+      setFiltered(selected === 'semua' ? list : list.filter((it) => String(it?.status || '').toLowerCase() === selected.toLowerCase()));
     } finally {
       setRefreshing(false);
     }
@@ -55,10 +75,12 @@ export default function Riwayat() {
       contentContainerStyle={{ paddingBottom: 24 }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
+      <Text style={styles.title}>Riwayat Absensi</Text>
+      <Text style={styles.filterLabel}>Filter status</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.hScroll} contentContainerStyle={styles.hScrollContent}>
         {categories.map((c) => (
-          <TouchableOpacity key={c.key} style={[styles.pill, selected===c.key && styles.pillActive]} onPress={()=>setSelected(c.key)}>
-            <Text style={[styles.pillText, selected===c.key && styles.pillTextActive]}>{c.label}</Text>
+          <TouchableOpacity key={c.key} style={[styles.pill, selected === c.key && styles.pillActive]} onPress={() => setSelected(c.key)}>
+            <Text style={[styles.pillText, selected === c.key && styles.pillTextActive]}>{c.label}</Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -66,10 +88,11 @@ export default function Riwayat() {
       <View style={{ gap: 12, marginTop: 16 }}>
         {filtered.map((item, idx) => {
           const tanggalStr = item?.rencanaAbsensi?.tanggal || item?.tanggal || "";
-          const d = tanggalStr ? new Date(tanggalStr) : new Date();
-          const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][d.getDay()];
+          const dParsed = parseServerDate(tanggalStr) || null;
+          const d = dParsed ?? new Date(item?.created_at || Date.now());
+          const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][d.getDay()];
           const date = String(d.getDate()).padStart(2, '0');
-          const bulan3 = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getMonth()];
+          const bulan3 = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'][d.getMonth()];
           const tahunNum = d.getFullYear();
           return (
             <RiwayatCard
@@ -78,20 +101,21 @@ export default function Riwayat() {
               tanggal={date}
               bulan={bulan3}
               tahun={tahunNum}
-              jamDatang={item?.jam_datang ? String(item.jam_datang).slice(0,5) : '-'}
-              jamPulang={item?.jam_pulang ? String(item.jam_pulang).slice(0,5) : '-'}
+              jamDatang={item?.jam_datang ? String(item.jam_datang).slice(0, 5) : '-'}
+              jamPulang={item?.jam_pulang ? String(item.jam_pulang).slice(0, 5) : '-'}
               status={(item?.status ?? 'Hadir')
                 .replace(/^hadir$/i, 'Hadir')
                 .replace(/^terlambat$/i, 'Terlambat')
                 .replace(/^izin$/i, 'Izin')
                 .replace(/^sakit$/i, 'Sakit')
                 .replace(/^alfa$/i, 'Alpha')}
+              keterangan={item?.keterangan || ''}
             />
           );
         })}
         {filtered.length === 0 && (
           <Text style={styles.empty}>
-            {selected === 'semua' ? 'Belum ada riwayat absensi' : `Belum ada riwayat untuk absensi '${categories.find(c=>c.key===selected)?.label}'`}
+            {selected === 'semua' ? 'Belum ada riwayat absensi' : `Belum ada riwayat untuk absensi '${categories.find(c => c.key === selected)?.label}'`}
           </Text>
         )}
       </View>

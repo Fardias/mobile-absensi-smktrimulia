@@ -10,6 +10,7 @@ type RiwayatCardProps = {
   jamDatang: string;
   jamPulang: string;
   status?: string;
+  keterangan?: string;
   onPress?: () => void;
 };
 
@@ -21,6 +22,7 @@ const RiwayatCard = ({
   jamDatang,
   jamPulang,
   status,
+  keterangan,
   onPress,
 }: RiwayatCardProps) => {
   type IoniconName =
@@ -72,7 +74,7 @@ const RiwayatCard = ({
         </View>
         <View style={styles.dateInfo}>
           <Text style={styles.dayName}>{hari}</Text>
-          <Text style={styles.yearText}>{tahun}</Text>
+          <Text style={styles.dateFullText}>{`${tanggal} ${bulan} ${tahun}`}</Text>
         </View>
       </View>
 
@@ -110,6 +112,11 @@ const RiwayatCard = ({
         <Text style={[styles.statusText, { color: statusConfig.color }]}>
           {status}
         </Text>
+      </View>
+
+      <View style={styles.keteranganSection}>
+        <Text style={styles.keteranganLabel}>Keterangan</Text>
+        <Text style={styles.keteranganValue}>{keterangan || '-'}</Text>
       </View>
 
       {/* Arrow Icon */}
@@ -153,7 +160,7 @@ export const RiwayatList = ({
           <RiwayatCard
             key={index}
             {...item}
-            // onPress={() => onCardPress?.(item)}
+          // onPress={() => onCardPress?.(item)}
           />
         ))}
       </View>
@@ -239,9 +246,9 @@ const styles = StyleSheet.create({
     color: "#001933",
     marginBottom: 2,
   },
-  yearText: {
+  dateFullText: {
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: "600",
     color: "#666666",
   },
   divider: {
@@ -284,6 +291,23 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 20,
     gap: 6,
+  },
+  keteranganSection: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  keteranganLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666666',
+    marginBottom: 4,
+    letterSpacing: 0.2,
+  },
+  keteranganValue: {
+    fontSize: 14,
+    color: '#001933',
   },
   statusText: {
     fontSize: 13,
