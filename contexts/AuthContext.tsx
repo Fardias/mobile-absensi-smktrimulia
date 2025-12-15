@@ -64,8 +64,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const data = response.data;
 
       if (data.responseStatus) {
-        const { access_token } = data.responseHeader;
-        const userData: User = data.responseData;
+        const access_token =
+          data?.responseData?.access_token ??
+          data?.responseHeader?.access_token;
+        const userData: User =
+          data?.responseData?.user ?? data?.responseData;
         // Hanya izinkan login jika role siswa
         if (userData?.role !== "siswa") {
           return { success: false, message: "Aplikasi ini khusus untuk siswa" };
@@ -109,7 +112,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       const data = response.data;
 
       if (data.responseStatus) {
-        const { access_token } = data.responseHeader;
+        const access_token =
+          data?.responseData?.access_token ??
+          data?.responseHeader?.access_token;
         await storage.set("token", access_token);
         setToken(access_token);
         return true;
