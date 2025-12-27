@@ -48,8 +48,13 @@ const IzinSakit = ({ onClose }: Props) => {
         formData.append('tanggal', tanggalStr);
         formData.append('keterangan', text || '');
         formData.append('jenis_absen', jenis);
-        const rnFile = { uri: file.uri, type: file.mimeType ?? 'application/octet-stream' } as any;
-        formData.append('bukti', rnFile, file.name ?? 'bukti');
+        const rnFile = {
+          uri: file.uri,
+          type: file.mimeType ?? 'image/jpeg',
+          name: file.name ?? 'upload.jpg',
+        } as any;
+        formData.append('bukti', rnFile);
+
         res = await absensiAPI.izinSakit(formData);
       } else {
         res = await absensiAPI.izinSakit({ tanggal: tanggalStr, keterangan: text || '', jenis_absen: jenis });
@@ -59,7 +64,8 @@ const IzinSakit = ({ onClose }: Props) => {
     } catch (e: any) {
       const status = e?.response?.status;
       const resp = e?.response?.data || {};
-      console.log('izinSakit error', status, resp);
+      console.log("e", e);
+      console.log('izinSakit errorss', status, resp);
       const msg = resp?.responseMessage || resp?.message || (status === 401 ? 'Sesi berakhir, silakan login lagi' : e?.message || 'Terjadi kesalahan saat mengajukan izin/sakit');
       Alert.alert('Gagal', msg);
     } finally {

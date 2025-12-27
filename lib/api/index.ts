@@ -1,7 +1,7 @@
 import axios from "axios";
 import { storage } from "../storage";
 
-const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.dev/api"; 
+const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.dev/api";
 // const API_BASE_URL = "http://10.0.2.2:8000/api";
 
 
@@ -23,7 +23,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     if (config.data instanceof FormData) {
-      delete config.headers["Content-Type"];
+      config.headers['Content-Type'] = 'multipart/form-data';
     }
 
     return config;

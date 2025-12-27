@@ -1,8 +1,3 @@
-// Bentuk umum respons API
-// Catatan: beberapa endpoint menggunakan ApiResponse wrapper,
-// sementara lainnya mengembalikan objek data mentah.
-// Tipe di bawah membantu konsistensi konsumsi data di klien.
-
 export interface ApiHeader {
   access_token?: string;
 }
