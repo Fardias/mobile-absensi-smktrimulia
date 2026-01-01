@@ -23,11 +23,46 @@ export default function IzinSakitPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F7FA' },
-  header: { paddingHorizontal: 20, paddingTop: 16 },
-  headerRow: { paddingHorizontal: 20, paddingTop: 16, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { fontSize: 20, fontWeight: '700', color: '#001933' },
-  subtitle: { fontSize: 13, color: '#357ABD', marginTop: 6, fontWeight: '600' },
-  backBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EEF2F7' },
-  card: { margin: 20, backgroundColor: '#FFFFFF', borderRadius: 12, borderWidth: 1, borderColor: '#E5EAF0', padding: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: '#F5F7FA',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  headerRow: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#001933',
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#357ABD',
+    marginTop: 6,
+    fontWeight: '600',
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EEF2F7',
+  },
+  card: {
+    margin: 20,
+    // backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    // borderWidth: 1,
+    // borderColor: '#E5EAF0',
+    padding: 16,
+  },
 });

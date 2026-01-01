@@ -67,13 +67,13 @@ export default function LoginScreen() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.inner}>
           <View style={styles.logoContainer}>
-            <Image
+            {/* <Image
               source={require('../assets/images/icon.png')}
               style={styles.logo}
               resizeMode="contain"
-            />
-            <Text style={styles.title}>SISENUS</Text>
-            <Text style={styles.subtitle}>SIstem abSENsi radiUS</Text>
+            /> */}
+            <Text style={styles.title}>SMK TRIMULIA JAKARTA</Text>
+            <Text style={styles.subtitle}>SISENUS - Sistem Absensi Radius</Text>
           </View>
 
           <View style={styles.formContainer}>
@@ -132,7 +132,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>© 2025 SISENUS SMK Trimulia. All rights reserved.</Text>
+            <Text style={styles.footerText}>© {new Date().getFullYear()} SISENUS SMK Trimulia Jakarta. All rights reserved.</Text>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -230,5 +230,6 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 12,
     color: '#9CA3AF',
+    textAlign: 'center',
   },
 });

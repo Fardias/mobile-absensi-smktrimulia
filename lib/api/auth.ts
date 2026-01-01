@@ -5,4 +5,5 @@ export const authAPI = {
   logout: () => api.post("/logout"),
   refresh: () => api.post("/refresh"),
   me: () => api.get("/me"),
+  profile: () => api.get("/profil"),
 };

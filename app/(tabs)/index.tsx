@@ -57,7 +57,7 @@ export default function Index() {
         const { data } = await absensiAPI.riwayatAbsenHariIni();
         const payload = (data?.responseData) || null;
         console.log('Riwayat absen hari ini:', payload);
-        
+
         setRiwayatHariIni(payload);
       } catch (e) {
         setRiwayatHariIni(null);
@@ -112,7 +112,7 @@ export default function Index() {
     const end = new Date(start);
     end.setMinutes(end.getMinutes() + toleransiMenit);
     const now = today.getTime();
-    return now >= start.getTime() && now <= end.getTime();
+    return now <= end.getTime();
   }, [pengaturan, today, toleransiMenit]);
 
   const isWithinCheckOut = useMemo(() => {
@@ -125,13 +125,13 @@ export default function Index() {
 
 
   console.log('Riwayat absen hari ini:', riwayatHariIni);
-  
+
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}  edges={['top']} >
+      <SafeAreaView style={styles.container} edges={['top']} >
         <ScrollView
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
@@ -219,7 +219,8 @@ export default function Index() {
                     .replace(/^terlambat$/i, 'Terlambat')
                     .replace(/^izin$/i, 'Izin')
                     .replace(/^sakit$/i, 'Sakit')
-                    .replace(/^alfa$/i, 'Alpha')
+                    .replace(/^alfa$/i, 'Alpha'),
+                  keterangan: riwayatHariIni.keterangan ?? '-',
                 }]}
                 showHeader={false}
               />
@@ -313,4 +314,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-  
+

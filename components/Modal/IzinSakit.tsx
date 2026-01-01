@@ -74,8 +74,8 @@ const IzinSakit = ({ onClose }: Props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.modalTitle}>Izin Sakit</Text>
+    <View >
+      {/* <Text style={styles.modalTitle}>Izin Sakit</Text> */}
       <View style={styles.segmentRow}>
         <TouchableOpacity
           onPress={() => setJenis('izin')}
@@ -134,9 +134,9 @@ const IzinSakit = ({ onClose }: Props) => {
         <TouchableOpacity style={styles.primaryBtn} onPress={submitIzinSakit} disabled={submitting}>
           <Text style={styles.primaryBtnText}>{submitting ? 'Mengirim...' : 'Kirim'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryBtn} onPress={onClose}>
+        {/* <TouchableOpacity style={styles.secondaryBtn} onPress={onClose}>
           <Text style={styles.secondaryBtnText}>Tutup</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );
@@ -144,8 +144,7 @@ const IzinSakit = ({ onClose }: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    backgroundColor: '#fff',
+   backgroundColor: '#000000',
   },
   modalTitle: {
     fontSize: 18,
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
     color: '#001933',
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
@@ -224,17 +223,19 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   actions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    // flexDirection: 'row',
+    // justifyContent: 'flex-end',
     gap: 12,
   },
   primaryBtn: {
+    marginTop: 12,
     backgroundColor: '#4A90E2',
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 8,
   },
   primaryBtnText: {
+    textAlign: 'center',
     color: '#FFFFFF',
     fontWeight: '700',
   },

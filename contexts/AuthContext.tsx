@@ -29,9 +29,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
       if (storedToken && storedUser) {
         try {
-          const response = await authAPI.me();
+          const response = await authAPI.profile();
           if (response.data.responseStatus) {
-            // Aplikasi mobile difokuskan untuk role 'siswa'
             const freshUser: User = response.data.responseData;
             if (freshUser?.role === "siswa") {
               setUser(freshUser);

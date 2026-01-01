@@ -109,6 +109,7 @@ export default function Riwayat() {
                 .replace(/^izin$/i, 'Izin')
                 .replace(/^sakit$/i, 'Sakit')
                 .replace(/^alfa$/i, 'Alpha')}
+              keterangan={item?.keterangan || '-'}
             />
           );
         })}

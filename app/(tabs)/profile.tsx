@@ -81,8 +81,8 @@ export default function Profile() {
 
       <View style={styles.infoBox}>
         <Text style={styles.infoText}>
-          Reset kata sandi hanya dapat dilakukan melalui guru piket.
-          Silakan hubungi guru piket jika Anda membutuhkan bantuan.
+          Reset kata sandi hanya dapat dilakukan melalui kesiswaan.
+          Silakan hubungi kesiswaan jika Anda membutuhkan bantuan.
         </Text>
       </View>
 
