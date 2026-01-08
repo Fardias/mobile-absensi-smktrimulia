@@ -1,7 +1,8 @@
 import axios from "axios";
 import { storage } from "../storage";
 
-const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.dev/api";
+// const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.dev/api";
+const API_BASE_URL = "https://api-trimulia.aftlah.my.id/api";
 // const API_BASE_URL = "http://10.0.2.2:8000/api";
 
 
