@@ -35,6 +35,7 @@ export default function LoginScreen() {
     setFormData(prev => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
+  
   // Proses login; AuthContext akan menolak selain role 'siswa'
   const handleSubmit = async () => {
     if (!formData.username || !formData.password) {

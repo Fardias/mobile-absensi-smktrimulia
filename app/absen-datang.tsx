@@ -15,6 +15,8 @@ export default function AbsenDatangPage() {
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [now, setNow] = useState(new Date());
+
+// inisialisasi pengaturan dari api dan lokasi permission
 const init = async () => {
       try {
         setLoadingSettings(true);
@@ -36,11 +38,13 @@ const init = async () => {
     init();
   }, []);
 
+  // get waktu saat ini setiap 30 detik
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(id);
   }, []);
 
+  // buat region map dari pengaturan (menghitung dan menyimpan data lokasi peta)
   const region: Region | undefined = useMemo(() => {
     if (!pengaturan) return undefined;
     return {
@@ -51,9 +55,10 @@ const init = async () => {
     };
   }, [pengaturan]);
 
+  // cek apakah jam absen datang terlambat
   const isTooLate = useMemo(() => {
     if (!pengaturan?.jam_masuk) return false;
-    const jamStr = String(pengaturan.jam_masuk).slice(0, 5);
+    const jamStr = String(pengaturan.jam_masuk).slice(0, 5); // ambil jam dan menit dari jam_masuk
     const [hh, mm] = jamStr.split(':');
     const tgl = new Date(now);
     const jamMasuk = new Date(tgl.getFullYear(), tgl.getMonth(), tgl.getDate(), Number(hh || 0), Number(mm || 0), 0, 0);
