@@ -36,7 +36,6 @@ export default function LoginScreen() {
     if (error) setError('');
   };
   
-  // Proses login; AuthContext akan menolak selain role 'siswa'
   const handleSubmit = async () => {
     if (!formData.username || !formData.password) {
       setError('Mohon isi username dan password');

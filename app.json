@@ -8,13 +8,13 @@
     "scheme": "mobileabsensismktrimulia",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-  "ios": {
+    "ios": {
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Aplikasi membutuhkan akses lokasi saat digunakan untuk memverifikasi absensi berdasarkan posisi Anda."
       }
     },
-  "android": {
+    "android": {
       "adaptiveIcon": {
         "backgroundColor": "#ffffff",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -27,7 +27,12 @@
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION"
-      ]
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDUvu4xt34TpWZ9JdLw9XR4D4TTn7KavPY"
+        }
+      }
     },
     "web": {
       "output": "static",

@@ -84,7 +84,6 @@ function RootNavigation() {
   );
 }
 
-// Bungkus semuanya dengan AuthProvider
 export default function RootLayout() {
   return (
     <AuthProvider>

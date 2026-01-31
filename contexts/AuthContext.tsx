@@ -22,7 +22,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Inisialisasi auth dari storage dan verifikasi ke server
     const initAuth = async () => {
       const storedToken = await storage.get("token");
       const storedUser = await storage.get("user");
@@ -57,25 +56,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
   const login = async (credentials: { username: string; password: string }) => {
     try {
-      // Kirim JSON langsung; backend mengembalikan user + access_token
       const response = await authAPI.login(credentials);
+      console.log("login response:", response);
       
       const data = response.data;
+      console.log("login data:", data);
 
       if (data.responseStatus) {
-        const access_token =
-          data?.responseData?.access_token ??
-          data?.responseHeader?.access_token;
-        const userData: User =
-          data?.responseData?.user ?? data?.responseData;
-        // Hanya izinkan login jika role siswa
+        const access_token = data?.responseData?.access_token;
+        console.log("access_token:", access_token);
+        
+        const userData: User = data?.responseData?.user;
+        console.log("userData:", userData);
+
         if (userData?.role !== "siswa") {
           return { success: false, message: "Aplikasi ini khusus untuk siswa" };
         }
+
         await storage.set("token", access_token);
         await storage.set("user", userData);
+
         setToken(access_token);
         setUser(userData);
+
         return { success: true, data: userData };
       } else {
         return { success: false, message: data.responseMessage };
@@ -104,27 +107,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  const refreshToken = async () => {
-    try {
-      // Refresh token akses jika tersedia
-      const response = await authAPI.refresh();
-      const data = response.data;
-
-      if (data.responseStatus) {
-        const access_token =
-          data?.responseData?.access_token ??
-          data?.responseHeader?.access_token;
-        await storage.set("token", access_token);
-        setToken(access_token);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      // Bila gagal refresh, lakukan logout agar sesi bersih
-      logout();
-      return false;
-    }
-  };
 
   const value: AuthContextType = {
     user,
@@ -132,7 +114,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     loading,
     login,
     logout,
-    refreshToken,
     isAuthenticated: !!user && !!token,
   };
 

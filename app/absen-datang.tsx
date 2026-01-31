@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, StyleSheet, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, Circle, Region } from 'react-native-maps';
@@ -15,27 +15,44 @@ export default function AbsenDatangPage() {
   const [me, setMe] = useState<{ latitude: number; longitude: number } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [now, setNow] = useState(new Date());
+  const locationSub = useRef<Location.LocationSubscription | null>(null);
 
-// inisialisasi pengaturan dari api dan lokasi permission
-const init = async () => {
-      try {
-        setLoadingSettings(true);
-        const { data } = await generalAPI.getPengaturan();
-        setPengaturan(data);
-      } catch (e: any) {
-        setErrorSettings(e?.response?.data?.message || 'Gagal memuat pengaturan');
-      } finally {
-        setLoadingSettings(false);
+  const init = async () => {
+    try {
+      setLoadingSettings(true);
+      const { data } = await generalAPI.getPengaturan();
+      setPengaturan(data);
+    } catch (e: any) {
+      setErrorSettings(e?.response?.data?.message || 'Gagal memuat pengaturan');
+    } finally {
+      setLoadingSettings(false);
+    }
+
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status === 'granted') {
+      if (locationSub.current) {
+        locationSub.current.remove();
       }
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
-        setMe({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      const sub = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 50,
+          distanceInterval: 0.01,
+        },
+        (pos) => {
+          setMe({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+        }
+      );
+      locationSub.current = sub;
+    }
+  };
+  useEffect(() => {
+    init();
+    return () => {
+      if (locationSub.current) {
+        locationSub.current.remove();
       }
     };
-  useEffect(() => {
-    
-    init();
   }, []);
 
   // get waktu saat ini setiap 30 detik
@@ -86,8 +103,8 @@ const init = async () => {
       const d = typeof rd?.distance === 'number' ? rd.distance : null;
       const r = typeof rd?.radius === 'number' ? rd.radius : null;
       if (d != null && r != null) {
-        const delta = Math.max(0, Math.round(d) - r);
-        const info = `Posisi kamu saat ini berada di ${Math.round(d)} m. Mendekat sebanyak ${delta} m lagi agar masuk ke radius absensi (${r} m).`;
+        const delta = Math.max(0, d - r);
+        const info = `Posisi kamu saat ini berada di ${d.toFixed(1)} m. Mendekat sebanyak ${delta.toFixed(1)} m lagi agar masuk ke radius absensi (${r} m).`;
         Alert.alert('Gagal', `${msg}\n\n${info}`);
       } else {
         Alert.alert('Gagal', msg);

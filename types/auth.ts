@@ -9,6 +9,5 @@ export interface AuthContextType {
     password: string;
   }) => Promise<{ success: boolean; data?: User; message?: string }>;
   logout: () => Promise<void>;
-  refreshToken: () => Promise<boolean>;
   isAuthenticated: boolean;
 }
