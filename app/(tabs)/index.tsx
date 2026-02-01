@@ -1,5 +1,4 @@
 import ActionButton from "@/components/ActionButton";
-import RiwayatCard from '@/components/RiwayatCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, Text, View, RefreshControl } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -27,11 +26,11 @@ export default function Index() {
     'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ];
+
   const monthName = months[today.getMonth()];
 
   const date = today.getDate();
   const year = today.getFullYear();
-
 
   useEffect(() => {
     // Muat pengaturan sekolah (lokasi, radius, jam, toleransi)
@@ -85,6 +84,7 @@ export default function Index() {
       setLoadingRiwayat(true);
       const riwayatRes = await absensiAPI.riwayatAbsenHariIni();
       const payload = (riwayatRes.data?.responseData) || null;
+      // console.log('💖💖Riwayat absen hari ini:', payload);
       setRiwayatHariIni(payload);
     } catch (e) {
       setRiwayatHariIni(null);
@@ -104,16 +104,22 @@ export default function Index() {
   const jamPulang = useMemo(() => formatJam(pengaturan?.jam_pulang), [pengaturan]);
   const toleransiMenit = pengaturan?.toleransi_telat ?? 0;
 
-  const canCheckInWindow = useMemo(() => {
-    if (!pengaturan?.jam_masuk) return false;
-    const [h, m] = pengaturan.jam_masuk.split(':').map((x) => parseInt(x, 10));
-    const start = new Date(today);
-    start.setHours(h || 0, m || 0, 0, 0);
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + toleransiMenit);
-    const now = today.getTime();
-    return now <= end.getTime();
-  }, [pengaturan, today, toleransiMenit]);
+  const isIzinOrSakit = useMemo(() => {
+    if (!riwayatHariIni?.status) return false;
+    const status = String(riwayatHariIni.status).toLowerCase();
+    return status === 'izin' || status === 'sakit';
+  }, [riwayatHariIni]);
+
+  // const canCheckInWindow = useMemo(() => {
+  //   if (!pengaturan?.jam_masuk) return false;
+  //   const [h, m] = pengaturan.jam_masuk.split(':').map((x) => parseInt(x, 10));
+  //   const start = new Date(today);
+  //   start.setHours(h || 0, m || 0, 0, 0);
+  //   const end = new Date(start);
+  //   end.setMinutes(end.getMinutes() + toleransiMenit);
+  //   const now = today.getTime();
+  //   return now <= end.getTime();
+  // }, [pengaturan, today, toleransiMenit]);
 
   const isWithinCheckOut = useMemo(() => {
     if (!pengaturan?.jam_pulang) return false;
@@ -122,9 +128,6 @@ export default function Index() {
     start.setHours(h || 0, m || 0, 0, 0);
     return today.getTime() >= start.getTime();
   }, [pengaturan, today]);
-
-
-  console.log('Riwayat absen hari ini:', riwayatHariIni);
 
 
   return (
@@ -144,14 +147,12 @@ export default function Index() {
           >
             {/* Header: sapaan pengguna (khusus siswa) dan tanggal hari ini */}
             <View style={styles.greetings}>
-              <Text style={styles.greetingText}>Hai, {user?.nama || user?.username || 'Pengguna'} 👋</Text>
+              <Text style={styles.greetingText}>Hai, {user?.nama || 'Pengguna'} 👋</Text>
               <Text style={styles.dateText}>{`${dayName}, ${date} ${monthName} ${year}`}</Text>
             </View>
           </LinearGradient>
 
-          {/* Time Cards: jam datang/pulang dari pengaturan sekolah */}
           <View style={styles.timeCardSection}>
-            {/* <Text style={styles.sectionTitle}>Jam Masuk dan Keluar Hari Ini</Text> */}
             <View style={styles.timeCardContainer}>
               <TimeCard judul="Jam Datang" jam={jamMasuk} />
               <TimeCard judul="Jam Pulang" jam={jamPulang} />
@@ -166,7 +167,6 @@ export default function Index() {
             )}
           </View>
 
-          {/* Aksi Absensi: Datang, Pulang, dan Izin/Sakit */}
           <View style={styles.actionSection}>
             <Text style={styles.sectionTitle}>Menu Absensi</Text>
             <View style={styles.actionButtonContainer}>
@@ -174,14 +174,20 @@ export default function Index() {
                 iconName="time"
                 iconText="Absen Datang"
                 type="absenDatang"
-                disabled={!canCheckInWindow || loadingPengaturan || !pengaturan || !!riwayatHariIni?.jam_datang}
+                disabled={loadingPengaturan || !pengaturan || !!riwayatHariIni?.jam_datang || isIzinOrSakit}
                 pengaturan={pengaturan}
               />
               <ActionButton
                 iconName="time"
                 iconText="Absen Pulang"
                 type="absenPulang"
-                disabled={!isWithinCheckOut || loadingPengaturan || !pengaturan}
+                disabled={
+                  !isWithinCheckOut ||
+                  loadingPengaturan ||
+                  !pengaturan ||
+                  !!riwayatHariIni?.jam_pulang ||
+                  isIzinOrSakit
+                }
                 pengaturan={pengaturan}
               />
               <ActionButton
@@ -195,12 +201,6 @@ export default function Index() {
             </View>
           </View>
 
-          {/* <RiwayatList
-            data={riwayatData}
-            onSeeAll={() => console.log('Lihat semua')}
-            onCardPress={(item) => console.log('Card pressed', item)}
-          /> */}
-          {/* Status Absensi Hari Ini */}
           <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
             <Text style={styles.sectionTitle}>Status Absensi Hari Ini</Text>
             {loadingRiwayat ? (

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Alert, ActivityIndicator, TouchableOpacity, StyleSheet } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import axios from 'axios';
 
 const ExpoFileUploadComponent = ({ onSelect }: { onSelect?: (asset: DocumentPicker.DocumentPickerAsset | null) => void }) => {
     const [fileResponse, setFileResponse] = useState<DocumentPicker.DocumentPickerAsset | null>(null);

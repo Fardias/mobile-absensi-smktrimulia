@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 type Props = {
   judul: string;
@@ -8,19 +7,10 @@ type Props = {
 };
 
 const TimeCard = ({ judul, jam }: Props) => {
-  const isJamDatang = judul.toLowerCase().includes('datang');
 
   return (
     <View style={styles.card}>
-      {/* <View style={styles.iconContainer}>
-        <Ionicons 
-          name={isJamDatang ? 'time-outline' : 'timer-outline'} 
-          size={24} 
-          color="#4A90E2" 
-        />
-      </View> */}
       <Text style={styles.cardTitle}>{judul}</Text>
-
       <View style={styles.textContainer}>
         <Text style={styles.cardTime}>{jam} WIB</Text>
       </View>
@@ -41,7 +31,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 6,
-    // borderLeftWidth: 4,
     borderLeftColor: '#4A90E2',
   },
   iconContainer: {

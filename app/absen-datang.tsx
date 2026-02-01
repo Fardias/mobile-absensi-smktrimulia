@@ -36,7 +36,7 @@ export default function AbsenDatangPage() {
       const sub = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.High,
-          timeInterval: 50,
+          timeInterval: 50, // 0.5 detik
           distanceInterval: 0.01,
         },
         (pos) => {
@@ -73,16 +73,16 @@ export default function AbsenDatangPage() {
   }, [pengaturan]);
 
   // cek apakah jam absen datang terlambat
-  const isTooLate = useMemo(() => {
-    if (!pengaturan?.jam_masuk) return false;
-    const jamStr = String(pengaturan.jam_masuk).slice(0, 5); // ambil jam dan menit dari jam_masuk
-    const [hh, mm] = jamStr.split(':');
-    const tgl = new Date(now);
-    const jamMasuk = new Date(tgl.getFullYear(), tgl.getMonth(), tgl.getDate(), Number(hh || 0), Number(mm || 0), 0, 0);
-    const toleransi = Number(pengaturan?.toleransi_telat ?? 0);
-    const batas = new Date(jamMasuk.getTime() + toleransi * 60000);
-    return now.getTime() > batas.getTime();
-  }, [pengaturan, now]);
+  // const isTooLate = useMemo(() => {
+  //   if (!pengaturan?.jam_masuk) return false;
+  //   const jamStr = String(pengaturan.jam_masuk).slice(0, 5); // ambil jam dan menit dari jam_masuk
+  //   const [hh, mm] = jamStr.split(':');
+  //   const tgl = new Date(now);
+  //   const jamMasuk = new Date(tgl.getFullYear(), tgl.getMonth(), tgl.getDate(), Number(hh || 0), Number(mm || 0), 0, 0);
+  //   const toleransi = Number(pengaturan?.toleransi_telat ?? 0);
+  //   const batas = new Date(jamMasuk.getTime() + toleransi * 60000);
+  //   return now.getTime() > batas.getTime();
+  // }, [pengaturan, now]);
 
   const onAbsen = async () => {
     try {
@@ -156,7 +156,7 @@ export default function AbsenDatangPage() {
 
 
       <View style={styles.actionsSingle}>
-        <TouchableOpacity style={styles.primaryBtnFull} onPress={onAbsen} disabled={submitting || !me || isTooLate}>
+        <TouchableOpacity style={styles.primaryBtnFull} onPress={onAbsen} disabled={submitting || !me}>
           <Text style={styles.primaryBtnText}>{submitting ? 'Memproses...' : 'Absen Datang'}</Text>
         </TouchableOpacity>
       </View>

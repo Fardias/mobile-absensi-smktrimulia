@@ -5,8 +5,8 @@ import { absensiAPI } from "../../lib/api/absensi";
 import { Dialog, ALERT_TYPE } from 'react-native-alert-notification/lib/commonjs';
 
 export default function Profile() {
-  const { logout, user } = useAuth();
-  const [profil, setProfil] = useState<any | null>(null);
+  const { logout } = useAuth();
+  const [profil, setProfil] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,10 +17,10 @@ export default function Profile() {
         setLoading(true);
         setError(null);
         const { data } = await absensiAPI.getDetailProfil();
-        const payload = data?.responseData ?? data;
-        console.log('Profil:', payload);
+        const payload = data?.responseData;
+        console.log('Profilsss:', payload);
 
-        setProfil(payload || null);
+        setProfil(payload);
       } finally {
         setLoading(false);
       }
@@ -29,14 +29,14 @@ export default function Profile() {
   }, []);
 
 
- 
+
   const onRefresh = async () => {
     try {
       setRefreshing(true);
       setError(null);
       const { data } = await absensiAPI.getDetailProfil();
-      const payload = data?.responseData ?? data;
-      setProfil(payload || null);
+      const payload = data?.responseData;
+      setProfil(payload);
     } catch (e: any) {
       const resp = e?.response?.data || {};
       const errMsg = resp?.responseMessage || resp?.message || e?.message || 'Gagal memuat profil';
@@ -46,13 +46,11 @@ export default function Profile() {
     }
   };
 
-  const nama = (profil as any)?.nama ?? user?.nama ?? user?.username ?? '-';
-  const nis = (profil as any)?.nis ?? '-';
-  const jenkel = (profil as any)?.jenis_kelamin === 'L' ? 'Laki-laki' : (profil as any)?.jenis_kelamin === 'P' ? 'Perempuan' : '-';
-  const kelas = (profil as any)?.kelas ?? '-';
-  const walas = (profil as any)?.wali_kelas ?? '-';
-
-
+  const nama = profil.nama || '-';
+  const nis = profil.nis || '-';
+  const jenkel = profil.jenis_kelamin === 'L' ? 'Laki-laki' : profil.jenis_kelamin === 'P' ? 'Perempuan' : '-';
+  const kelas = profil.kelas || '-';
+  const walas = profil.wali_kelas || '-';
 
   return (
     <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>

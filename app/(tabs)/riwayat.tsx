@@ -5,12 +5,12 @@ import RiwayatCard from "../../components/RiwayatCard";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function Riwayat() {
-  const [data, setData] = useState<any[]>([]);
+  // const [data, setData] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const categories = [
     { key: 'semua', label: 'Semua' },
     { key: 'hadir', label: 'Hadir' },
-    { key: 'alpha', label: 'Alpha' },
+    { key: 'alfa', label: 'Alfa' },
     { key: 'izin', label: 'Izin' },
     { key: 'terlambat', label: 'Terlambat' },
     { key: 'sakit', label: 'Sakit' },
@@ -23,8 +23,11 @@ export default function Riwayat() {
   const parseServerDate = (str: string | undefined | null): Date | null => {
     if (!str) return null;
     const s = String(str).trim();
+    // console.log("riwayat page - s", s);
     const dmY = /^([0-3]\d)-(0\d|1[0-2])-(\d{4})$/; // dd-mm-YYYY
+    // console.log("riwayat page - dmY", dmY);
     const iso = /^(\d{4})-(0\d|1[0-2])-[0-3]\d/; // YYYY-MM-DD
+    // console.log("riwayat page - iso", iso);
     if (dmY.test(s)) {
       const [, dd, mm, yyyy] = s.match(dmY)!;
       const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
@@ -44,10 +47,15 @@ export default function Riwayat() {
         setLoading(true);
         const statusParam = selected === 'semua' ? undefined : selected.toLowerCase();
         const { data } = await absensiAPI.riwayat(statusParam);
-        const payload = data?.responseData ?? data;
+        const payload = data?.responseData;
+        console.log("riwayat page - payload", payload);
+
         const list = Array.isArray(payload) ? payload : [];
-        setData(list);
+        // console.log("riwayat page - list", list);
+
         setFiltered(selected === 'semua' ? list : list.filter((it) => String(it?.status || '').toLowerCase() === selected.toLowerCase()));
+        // console.log("riwayat page - filtered", filtered);
+
       } finally {
         setLoading(false);
       }
@@ -60,9 +68,9 @@ export default function Riwayat() {
       setRefreshing(true);
       const statusParam = selected === 'semua' ? undefined : selected.toLowerCase();
       const { data } = await absensiAPI.riwayat(statusParam);
-      const payload = data?.responseData ?? data;
+      const payload = data?.responseData;
       const list = Array.isArray(payload) ? payload : [];
-      setData(list);
+      console.log("riwayat page - list", list);
       setFiltered(selected === 'semua' ? list : list.filter((it) => String(it?.status || '').toLowerCase() === selected.toLowerCase()));
     } finally {
       setRefreshing(false);
@@ -87,8 +95,11 @@ export default function Riwayat() {
 
       <View style={{ gap: 12, marginTop: 16 }}>
         {filtered.map((item, idx) => {
-          const tanggalStr = item?.rencanaAbsensi?.tanggal || item?.tanggal || "";
-          const dParsed = parseServerDate(tanggalStr) || null;
+          const tanggalStr = item?.rencana_absensi?.tanggal;
+
+          const dParsed = parseServerDate(tanggalStr);
+          console.log("riwayat page - dParsed", dParsed);
+
           const d = dParsed ?? new Date(item?.created_at || Date.now());
           const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][d.getDay()];
           const date = String(d.getDate()).padStart(2, '0');
@@ -108,7 +119,7 @@ export default function Riwayat() {
                 .replace(/^terlambat$/i, 'Terlambat')
                 .replace(/^izin$/i, 'Izin')
                 .replace(/^sakit$/i, 'Sakit')
-                .replace(/^alfa$/i, 'Alpha')}
+                .replace(/^alfa$/i, 'Alfa')}
               keterangan={item?.keterangan || '-'}
             />
           );

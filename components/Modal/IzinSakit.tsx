@@ -134,9 +134,6 @@ const IzinSakit = ({ onClose }: Props) => {
         <TouchableOpacity style={styles.primaryBtn} onPress={submitIzinSakit} disabled={submitting}>
           <Text style={styles.primaryBtnText}>{submitting ? 'Mengirim...' : 'Kirim'}</Text>
         </TouchableOpacity>
-        {/* <TouchableOpacity style={styles.secondaryBtn} onPress={onClose}>
-          <Text style={styles.secondaryBtnText}>Tutup</Text>
-        </TouchableOpacity> */}
       </View>
     </View>
   );
@@ -144,7 +141,7 @@ const IzinSakit = ({ onClose }: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-   backgroundColor: '#000000',
+    backgroundColor: '#000000',
   },
   modalTitle: {
     fontSize: 18,
