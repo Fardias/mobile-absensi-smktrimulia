@@ -3,7 +3,7 @@ import { storage } from "../storage";
 
 const API_BASE_URL = "https://kamron-problockade-indiscriminatingly.ngrok-free.dev/api";
 // const API_BASE_URL = "https://api-trimulia.aftlah.my.id/api";
-// const API_BASE_URL = "http://10.0.2.2:8000/api";
+// const API_BASE_URL = "http://110.121.222.232:8000/api";
 
 
 // Klien HTTP: baseURL (ngrok saat pengembangan) dan header default
